@@ -1,0 +1,91 @@
+// PostgreSQL Production Schema for Team Availability & Schedule Matrix
+// (ระบบเช็กตารางความพร้อมและคิวว่างของทีม)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String          @id @default(cuid())
+  name           String
+  email          String          @unique
+  passwordHash   String
+  role           String          @default("MEMBER") // ADMIN, MEMBER, LEAD
+  status         String          @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  failedAttempts Int             @default(0)
+  lockedUntil    DateTime?
+  tokenVersion   Int             @default(1) // Incremented on password reset to invalidate active sessions
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  availabilities    Availability[]
+  passwordResets    PasswordReset[]
+  createdGroups     Group[]         @relation("GroupCreator")
+  groupMemberships  GroupMember[]
+
+  @@index([email])
+}
+
+model Group {
+  id          String        @id @default(cuid())
+  name        String
+  code        String        @unique
+  description String?
+  createdById String
+  createdBy   User          @relation("GroupCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  members     GroupMember[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([code])
+}
+
+model GroupMember {
+  id       String   @id @default(cuid())
+  groupId  String
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     String   @default("MEMBER") // OWNER, ADMIN, MEMBER
+  joinedAt DateTime @default(now())
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+model Availability {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      String   // ISO YYYY-MM-DD
+  timeSlot  String   // ALL_DAY, MORNING, AFTERNOON, EVENING
+  status    String   // AVAILABLE, BUSY
+  reason    String?  // Mandatory when status is BUSY
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date, timeSlot])
+  @@index([date])
+  @@index([userId])
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email     String
+  otpHash   String   // SHA-256 cryptographic hash of 6-digit OTP
+  attempts  Int      @default(0) // Max 5 verification attempts
+  expiresAt DateTime // 10 minutes expiry
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([userId])
+}
