@@ -11,7 +11,6 @@ import CalendarWeeklyMatrix from "@/components/calendar/CalendarWeeklyMatrix";
 import AvailabilityModal from "@/components/calendar/AvailabilityModal";
 import AuthModal from "@/components/auth/AuthModal";
 import ForgotPasswordModal from "@/components/auth/ForgotPasswordModal";
-import DevOtpBanner from "@/components/dev/DevOtpBanner";
 import CreateGroupModal from "@/components/group/CreateGroupModal";
 import JoinGroupModal from "@/components/group/JoinGroupModal";
 import { getCurrentUserAction } from "@/actions/auth";
@@ -277,6 +276,30 @@ export default function HomePage() {
               </button>
             </div>
           </div>
+        ) : !currentUser && !activeGroup ? (
+          /* Welcome Card for Visitors / First-time Users */
+          <div className="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white p-6 sm:p-8 text-center shadow-xs space-y-3">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
+              <Calendar className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">
+                ยินดีต้อนรับสู่ระบบเช็กตารางความพร้อมและคิวว่างของทีม
+              </h3>
+              <p className="mt-1 text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
+                เริ่มต้นใช้งานโดยเข้าสู่ระบบหรือสร้างบัญชีใหม่เพื่อสร้างกลุ่มทีมของคุณ หรือกรอกรหัสกลุ่มเพื่อเข้าร่วมกับเพื่อนร่วมทีม
+              </p>
+            </div>
+            <div className="flex justify-center gap-3 pt-2">
+              <button
+                onClick={() => setIsAuthOpen(true)}
+                className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-colors"
+              >
+                <Users className="h-4 w-4" />
+                <span>เข้าสู่ระบบ / ลงทะเบียน</span>
+              </button>
+            </div>
+          </div>
         ) : null}
 
         {/* KPI Summary Cards (Scoped to Active Group) */}
@@ -425,14 +448,6 @@ export default function HomePage() {
         onOpenAuth={() => {
           setIsAvailabilityOpen(false);
           setIsAuthOpen(true);
-        }}
-      />
-
-      {/* Development OTP Banner */}
-      <DevOtpBanner
-        onFillOtp={(otp) => {
-          setPrefilledOtp(otp);
-          setIsForgotOpen(true);
         }}
       />
     </div>

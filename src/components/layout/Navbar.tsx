@@ -7,7 +7,6 @@ import {
   LogIn,
   Plus,
   ChevronDown,
-  ArrowLeftRight,
   Users,
   Copy,
   Check,
@@ -15,7 +14,7 @@ import {
   FolderPlus,
 } from "lucide-react";
 import { SessionUser, GroupItem } from "@/lib/types";
-import { logoutAction, switchDemoUserAction } from "@/actions/auth";
+import { logoutAction } from "@/actions/auth";
 import { stripEmojis } from "@/lib/utils";
 
 interface NavbarProps {
@@ -30,14 +29,6 @@ interface NavbarProps {
   onUserChanged: (user: SessionUser | null) => void;
 }
 
-const DEMO_USERS = [
-  { name: "Apinya (Tech Lead)", email: "apinya@team.com", role: "LEAD" },
-  { name: "Somchai (Backend Dev)", email: "somchai@team.com", role: "MEMBER" },
-  { name: "Nattapong (Frontend Dev)", email: "nattapong@team.com", role: "MEMBER" },
-  { name: "Ploypailin (UI/UX Designer)", email: "ploy@team.com", role: "MEMBER" },
-  { name: "Kornkanok (QA Lead)", email: "kornkanok@team.com", role: "MEMBER" },
-];
-
 export default function Navbar({
   currentUser,
   userGroups,
@@ -49,27 +40,12 @@ export default function Navbar({
   onOpenAvailabilityModal,
   onUserChanged,
 }: NavbarProps) {
-  const [showDemoDropdown, setShowDemoDropdown] = useState(false);
   const [showGroupDropdown, setShowGroupDropdown] = useState(false);
-  const [loadingSwitch, setLoadingSwitch] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
 
   const handleLogout = async () => {
     await logoutAction();
     onUserChanged(null);
-  };
-
-  const handleSwitchUser = async (email: string) => {
-    setLoadingSwitch(true);
-    try {
-      const res = await switchDemoUserAction(email);
-      if (res.success && res.data) {
-        onUserChanged(res.data);
-      }
-    } finally {
-      setLoadingSwitch(false);
-      setShowDemoDropdown(false);
-    }
   };
 
   const handleCopyGroupCode = (e: React.MouseEvent) => {
@@ -233,62 +209,6 @@ export default function Navbar({
             </div>
           )}
 
-          {/* Quick Demo Switcher Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setShowDemoDropdown(!showDemoDropdown)}
-              disabled={loadingSwitch}
-              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-xs hover:bg-slate-50 transition-colors"
-              title="สลับบัญชีเพื่อทดสอบระบบ"
-            >
-              <ArrowLeftRight className="h-3.5 w-3.5 text-blue-600" />
-              <span className="hidden xl:inline">สลับบัญชีทดสอบ</span>
-              <span className="xl:hidden">สลับผู้ใช้</span>
-              <ChevronDown className="h-3 w-3 text-slate-400" />
-            </button>
-
-            {showDemoDropdown && (
-              <>
-                <div
-                  className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs sm:bg-transparent"
-                  onClick={() => setShowDemoDropdown(false)}
-                />
-                <div className="fixed inset-x-0 bottom-0 z-50 rounded-t-[28px] bg-white p-4 shadow-2xl border-t border-slate-200 pb-8 sm:pb-2 sm:absolute sm:inset-auto sm:right-0 sm:mt-2 sm:w-64 sm:rounded-xl sm:border sm:p-2 animate-in slide-in-from-bottom-5 sm:slide-in-from-top-2 duration-200">
-                  {/* Mobile Pull Handle */}
-                  <div className="sm:hidden flex justify-center pb-3 pt-0.5">
-                    <div className="w-12 h-1.5 rounded-full bg-slate-300" />
-                  </div>
-                  <div className="px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                    เลือกบัญชีทดสอบ (Demo Members)
-                  </div>
-                  <div className="space-y-1.5 sm:space-y-1 max-h-64 sm:max-h-56 overflow-y-auto">
-                    {DEMO_USERS.map((u) => {
-                      const isActive = currentUser?.email === u.email;
-                      return (
-                        <button
-                          key={u.email}
-                          onClick={() => handleSwitchUser(u.email)}
-                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 sm:py-2 text-left text-xs transition-colors ${
-                            isActive
-                              ? "bg-blue-50 text-blue-700 font-semibold"
-                              : "text-slate-700 hover:bg-slate-100 active:bg-slate-200"
-                          }`}
-                        >
-                          <div>
-                            <p className="font-medium text-sm sm:text-xs leading-none">{u.name}</p>
-                            <p className="text-[11px] sm:text-[10px] text-slate-400 mt-1 sm:mt-0.5">{u.email}</p>
-                          </div>
-                          <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-mono text-slate-600">
-                            {u.role}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
 
           {/* Availability Logging button */}
           <button

@@ -432,38 +432,13 @@ export async function getCurrentUserAction(): Promise<SessionUser | null> {
 }
 
 /**
- * Quick demo user switcher for fast role testing
+ * Quick demo user switcher has been removed for production readiness
  */
-export async function switchDemoUserAction(email: string): Promise<ActionResult<SessionUser>> {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
-    });
-
-    if (!user) {
-      return { success: false, message: "ไม่พบบัญชีผู้ใช้ตัวอย่างนี้" };
-    }
-
-    const sessionUser: SessionUser = {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role as any,
-      status: user.status,
-      tokenVersion: user.tokenVersion,
-    };
-
-    const token = await createSessionToken(sessionUser);
-    await setSessionCookie(token);
-
-    return {
-      success: true,
-      message: `สลับไปยังบัญชี ${user.name} (${user.role}) เรียบร้อยแล้ว`,
-      data: sessionUser,
-    };
-  } catch (error: any) {
-    return { success: false, message: error.message };
-  }
+export async function switchDemoUserAction(): Promise<ActionResult<SessionUser>> {
+  return {
+    success: false,
+    message: "ฟังก์ชันบัญชีทดสอบถูกนำออกจากระบบแล้วเพื่อความปลอดภัยสำหรับใช้งานจริง",
+  };
 }
 
 /**

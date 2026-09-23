@@ -11,9 +11,8 @@ import {
   EyeOff,
   AlertCircle,
   CheckCircle2,
-  Users,
 } from "lucide-react";
-import { loginAction, registerAction, switchDemoUserAction } from "@/actions/auth";
+import { loginAction, registerAction } from "@/actions/auth";
 import { SessionUser } from "@/lib/types";
 
 interface AuthModalProps {
@@ -111,22 +110,6 @@ export default function AuthModal({
     }
   };
 
-  const handleQuickDemoLogin = async (email: string) => {
-    setErrorMsg("");
-    setLoading(true);
-    try {
-      const res = await switchDemoUserAction(email);
-      if (res.success && res.data) {
-        onSuccess(res.data);
-        onClose();
-      } else {
-        setErrorMsg(res.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-950/60 p-0 sm:p-4 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="relative w-full max-w-md rounded-t-[28px] sm:rounded-2xl bg-white p-5 sm:p-8 shadow-2xl border border-slate-200/80 max-h-[92vh] overflow-y-auto pb-8 sm:pb-8">
@@ -198,7 +181,7 @@ export default function AuthModal({
                 <input
                   type="email"
                   required
-                  placeholder="apinya@team.com"
+                  placeholder="yourname@company.com"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 bg-white py-3 sm:py-2.5 pl-10 pr-3 text-base sm:text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
@@ -257,32 +240,6 @@ export default function AuthModal({
             >
               {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ (Sign In)"}
             </button>
-
-            {/* Quick Demo Login */}
-            <div className="pt-3 border-t border-slate-100">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 mb-2">
-                <Users className="h-3.5 w-3.5 text-blue-600" />
-                <span>หรือเข้าสู่ระบบด่วนด้วยบัญชีทดสอบ (Demo Accounts):</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemoLogin("apinya@team.com")}
-                  className="rounded-xl bg-slate-50 hover:bg-blue-50 active:bg-blue-100 hover:text-blue-700 border border-slate-200 p-2.5 text-left text-xs transition-colors"
-                >
-                  <p className="font-semibold text-slate-800">Apinya (Lead)</p>
-                  <p className="text-[10px] text-slate-500">Tech Lead</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemoLogin("somchai@team.com")}
-                  className="rounded-xl bg-slate-50 hover:bg-blue-50 active:bg-blue-100 hover:text-blue-700 border border-slate-200 p-2.5 text-left text-xs transition-colors"
-                >
-                  <p className="font-semibold text-slate-800">Somchai (Backend)</p>
-                  <p className="text-[10px] text-slate-500">Senior Dev</p>
-                </button>
-              </div>
-            </div>
           </form>
         ) : (
           <form onSubmit={handleRegister} className="space-y-3.5">
